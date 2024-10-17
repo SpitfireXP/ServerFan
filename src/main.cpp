@@ -3,7 +3,7 @@
 LiquidCrystal_I2C lcd(0x27,20,4);
 
 //====================================== Temperatureinstellungen
-#define solltemp 22
+#define solltemp 20
 #define stufe1 solltemp+1
 #define stufe2 solltemp+2
 #define stufe3 solltemp+3
@@ -11,7 +11,7 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 #define stufe5 solltemp+5
 //==============================================================
 
-#define DHTPIN 24
+#define DHTPIN 4
 #define FanPin 5
 #define DHTTYPE DHT11
 float temp;
@@ -23,7 +23,7 @@ void setup() {
 lcd.init();
 lcd.backlight();
 dht.begin();
-TCCR1B = TCCR1B & B11111000 | B00000001;
+//TCCR1B = TCCR1B & B11111000 | B00000001;
 pinMode(FanPin,OUTPUT);
 }
 void loop() {
