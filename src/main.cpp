@@ -3,7 +3,7 @@
 LiquidCrystal_I2C lcd(0x27,20,4);
 
 //====================================== Temperatureinstellungen
-#define solltemp 22
+#define solltemp 21
 #define stufe1 solltemp+1
 #define stufe2 solltemp+2
 #define stufe3 solltemp+3
