@@ -1,9 +1,12 @@
 #include "DHT.h"
 #include "LiquidCrystal_I2C.h"
+#include "RotaryEncoder.h"
+
+
 LiquidCrystal_I2C lcd(0x27,20,4);
 
 //====================================== Temperatureinstellungen
-#define solltemp 21
+#define solltemp 20
 #define stufe1 solltemp+1
 #define stufe2 solltemp+2
 #define stufe3 solltemp+3
