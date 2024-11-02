@@ -1,14 +1,12 @@
 #include "DHT.h"
 #include "LiquidCrystal_I2C.h"
+LiquidCrystal_I2C lcd(0x27,20,4);
 //#include <CTRL.h>
 #include <CtrlEnc.h>
 
-
-
-LiquidCrystal_I2C lcd(0x27,20,4);
-
 //====================================== Temperatureinstellungen
-#define solltemp 24
+// #define solltemp 24
+int solltemp;
 #define stufe1 solltemp+1
 #define stufe2 solltemp+2
 #define stufe3 solltemp+3
@@ -16,14 +14,27 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 #define stufe5 solltemp+5
 //==============================================================
 
+
+void onTurnleft() {
+    solltemp = solltemp - 1;
+}
+
+void onTurnRight() {
+    solltemp = solltemp + 1;
+}
+
+
 #define DHTPIN 4
 #define FanPin 5
 #define RelayPin 6
 #define DHTTYPE DHT11
+CtrlEnc encoder(2, 7, onTurnleft, onTurnRight);
+
 float temp;
 String status;
 
 DHT dht(DHTPIN, DHTTYPE);
+
 
 void setup() {
 lcd.init();
@@ -32,8 +43,13 @@ dht.begin();
 //TCCR1B = TCCR1B & B11111000 | B00000001;
 pinMode(FanPin,OUTPUT);
 pinMode(RelayPin,OUTPUT);
+solltemp = 24;
 }
+
+
+
 void loop() {
+  encoder.process();
 delay(2000);
 float temp = dht.readTemperature();
 if (temp <= solltemp) { digitalWrite(RelayPin,LOW); status = "AUS      "; }else
