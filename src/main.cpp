@@ -31,6 +31,7 @@ void onTurnRight() {
 #define DHTPIN 4
 #define FanPin 5
 #define RelayPin 6
+#define Switch 8
 #define DHTTYPE DHT11
 CtrlEnc encoder(2, 7, onTurnleft, onTurnRight);
 
@@ -49,6 +50,7 @@ dht.begin();
 //TCCR1B = TCCR1B & B11111000 | B00000001;
 pinMode(FanPin,OUTPUT);
 pinMode(RelayPin,OUTPUT);
+pinMode(Switch,INPUT);
 solltemp = 24;
 }
 
@@ -56,7 +58,7 @@ solltemp = 24;
 
 void loop() {
 encoder.process();
-//delay(2000);
+delay(2000);
 float temp = dht.readTemperature();
 if (temp <= solltemp) { digitalWrite(RelayPin,LOW); status = "AUS      "; }else
     { digitalWrite(RelayPin,HIGH);}
@@ -81,5 +83,5 @@ lcd.print("\337C");
 lcd.setCursor(0,3);
 lcd.print("Status:   ");
 lcd.print(status);
-//delay(1000);
+delay(1000);
 }
