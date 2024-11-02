@@ -1,11 +1,9 @@
 #include "DHT.h"
 #include "LiquidCrystal_I2C.h"
 LiquidCrystal_I2C lcd(0x27,20,4);
-//#include <CTRL.h>
 #include <CtrlEnc.h>
 
 //====================================== Temperatureinstellungen
-// #define solltemp 24
 int solltemp;
 #define stufe1 solltemp+1
 #define stufe2 solltemp+2
@@ -14,15 +12,21 @@ int solltemp;
 #define stufe5 solltemp+5
 //==============================================================
 
-
 void onTurnleft() {
     solltemp = solltemp - 1;
+    Serial.println("Basic rotary encoder turn left");
+    Serial.print("Solltemperatur ");
+    Serial.print(solltemp);
+    Serial.println(" C");
 }
 
 void onTurnRight() {
     solltemp = solltemp + 1;
+    Serial.println("Basic rotary encoder turn right");
+    Serial.print("Solltemperatur ");
+    Serial.print(solltemp);
+    Serial.println(" C");
 }
-
 
 #define DHTPIN 4
 #define FanPin 5
@@ -37,6 +41,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 
 void setup() {
+Serial.begin(9600);
+Serial.println("Reset");
 lcd.init();
 lcd.backlight();
 dht.begin();
@@ -49,8 +55,8 @@ solltemp = 24;
 
 
 void loop() {
-  encoder.process();
-delay(2000);
+encoder.process();
+//delay(2000);
 float temp = dht.readTemperature();
 if (temp <= solltemp) { digitalWrite(RelayPin,LOW); status = "AUS      "; }else
     { digitalWrite(RelayPin,HIGH);}
@@ -75,5 +81,5 @@ lcd.print("\337C");
 lcd.setCursor(0,3);
 lcd.print("Status:   ");
 lcd.print(status);
-delay(1000);
+//delay(1000);
 }
