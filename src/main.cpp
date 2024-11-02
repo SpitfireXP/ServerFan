@@ -1,12 +1,14 @@
 #include "DHT.h"
 #include "LiquidCrystal_I2C.h"
-#include "RotaryEncoder.h"
+//#include <CTRL.h>
+#include <CtrlEnc.h>
+
 
 
 LiquidCrystal_I2C lcd(0x27,20,4);
 
 //====================================== Temperatureinstellungen
-#define solltemp 20
+#define solltemp 24
 #define stufe1 solltemp+1
 #define stufe2 solltemp+2
 #define stufe3 solltemp+3
@@ -47,15 +49,15 @@ if (temp >= solltemp) { analogWrite(FanPin,220); status = "Stufe-LOW"; }
 lcd.setCursor(0,0);
 lcd.print("L\365ftersteuerung");
 lcd.setCursor(0,1);
-lcd.print("Aktuell: ");
+lcd.print("Aktuell:  ");
 lcd.print(temp);
 lcd.print("\337C");
 lcd.setCursor(0,2);
-lcd.print("Soll: ");
+lcd.print("Solltemp: ");
 lcd.print(solltemp);
 lcd.print("\337C");
 lcd.setCursor(0,3);
-lcd.print("Status: ");
+lcd.print("Status:   ");
 lcd.print(status);
 delay(1000);
 }
