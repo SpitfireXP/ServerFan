@@ -1,5 +1,3 @@
-// Code Generiert durch CachtGPT
-
 #include <DHT.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -24,7 +22,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 Encoder myEnc(ENCODER_CLK, ENCODER_DT);
 
 // Globale Variablen
-float targetTemperature = 25.0; // Solltemperatur in °C
+float targetTemperature = 22.0; // Solltemperatur in °C
 float temperatureSpread = 5.0;  // Spreizung in °C (Temperaturunterschied für Vollast)
 float relaySpread = 0.5;       // Spreizung für das Relais in °C
 
@@ -111,8 +109,8 @@ void loop() {
 
   lcd.setCursor(0, 2);
   lcd.print("PWM: ");
-  lcd.print(pwmValue);
-  lcd.print(" / 255   ");
+  lcd.print(map(pwmValue, 0, 255, 0, 100));
+  lcd.print(" % ");
 
   lcd.setCursor(0, 3);
   lcd.print("Relais: ");
