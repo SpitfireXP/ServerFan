@@ -1,11 +1,3 @@
-// Dieser Code wurde mit Unterstützung von ChatGPT generiert.
-// Beschreibung:
-// Der Code steuert einen Lüfter basierend auf der gemessenen Temperatur eines DHT11-Sensors.
-// - Die Lüftergeschwindigkeit wird per PWM angepasst, abhängig von der Differenz zwischen Ist- und Solltemperatur.
-// - Ein Relais wird aktiviert oder deaktiviert, wenn die Temperatur unterhalb eines bestimmten Schwellenwertes liegt.
-// - Ein KY-040 Rotary Encoder erlaubt die Einstellung der Solltemperatur. Durch Drücken des Encoders kann die Solltemperatur auf 20°C zurückgesetzt werden.
-// - Ein LCD-Display zeigt die aktuelle Temperatur, die Solltemperatur, das PWM-Signal in Prozent und den Relaiszustand an.
-
 #include <DHT.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -32,7 +24,7 @@ Encoder myEnc(ENCODER_CLK, ENCODER_DT);
 // Globale Variablen
 float targetTemperature = 25.0; // Solltemperatur in °C
 float temperatureSpread = 5.0;  // Spreizung in °C (Temperaturunterschied für Vollast)
-float relaySpread = 0.5;       // Spreizung für das Relais in °C
+float relaySpread = 0.0;       // Spreizung für das Relais in °C (auf 0 gesetzt)
 
 long lastPosition = -999; // Letzte bekannte Position des Encoders
 unsigned long lastDebounceTime = 0;
@@ -47,6 +39,9 @@ void setup() {
   lcd.backlight();
   lcd.clear();
   Serial.begin(9600);
+
+  // Initialisiere PWM-Wert auf 0 (Lüfter aus beim Start)
+  analogWrite(FAN_PIN, 0);
 }
 
 void loop() {
@@ -85,6 +80,11 @@ void loop() {
   if (temperatureDifference > 0) {
     float pwmRatio = constrain((temperatureDifference / temperatureSpread), 0.0, 1.0);
     pwmValue = 255 - (int)(pwmRatio * 255); // Invertiertes PWM-Signal
+
+    // Mindest-PWM-Schwelle berücksichtigen
+    if (pwmValue > 0 && pwmValue < 77) { // 77 entspricht ca. 30% von 255
+      pwmValue = 77; // Lüfter startet bei 30%
+    }
   }
 
   // PWM-Wert an Lüfter ausgeben
@@ -118,8 +118,8 @@ void loop() {
 
   lcd.setCursor(0, 2);
   lcd.print("PWM: ");
-  lcd.print(map(pwmValue, 0, 255, 0, 100));
-  lcd.print(" %");
+  lcd.print(100 - map(pwmValue, 0, 255, 0, 100)); // Invertierte Anzeige
+  lcd.print(" % ");
 
   lcd.setCursor(0, 3);
   lcd.print("Relais: ");
