@@ -1,3 +1,11 @@
+// Dieser Code wurde mit Unterstützung von ChatGPT generiert.
+// Beschreibung:
+// Der Code steuert einen Lüfter basierend auf der gemessenen Temperatur eines DHT11-Sensors.
+// - Die Lüftergeschwindigkeit wird per PWM angepasst, abhängig von der Differenz zwischen Ist- und Solltemperatur.
+// - Ein Relais wird aktiviert oder deaktiviert, wenn die Temperatur unterhalb eines bestimmten Schwellenwertes liegt.
+// - Ein KY-040 Rotary Encoder erlaubt die Einstellung der Solltemperatur. Durch Drücken des Encoders kann die Solltemperatur auf 20°C zurückgesetzt werden.
+// - Ein LCD-Display zeigt die aktuelle Temperatur, die Solltemperatur, das PWM-Signal in Prozent und den Relaiszustand an.
+
 #include <DHT.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -22,7 +30,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 Encoder myEnc(ENCODER_CLK, ENCODER_DT);
 
 // Globale Variablen
-float targetTemperature = 22.0; // Solltemperatur in °C
+float targetTemperature = 25.0; // Solltemperatur in °C
 float temperatureSpread = 5.0;  // Spreizung in °C (Temperaturunterschied für Vollast)
 float relaySpread = 0.5;       // Spreizung für das Relais in °C
 
@@ -75,7 +83,8 @@ void loop() {
   // PWM-Signal berechnen (1-100% Bereich)
   int pwmValue = 0;
   if (temperatureDifference > 0) {
-    pwmValue = map(constrain(temperatureDifference, 0, temperatureSpread), 0, temperatureSpread, 0, 255);
+    float pwmRatio = constrain((temperatureDifference / temperatureSpread), 0.0, 1.0);
+    pwmValue = (int)(pwmRatio * 255); // Normales PWM-Signal
   }
 
   // PWM-Wert an Lüfter ausgeben
@@ -110,7 +119,7 @@ void loop() {
   lcd.setCursor(0, 2);
   lcd.print("PWM: ");
   lcd.print(map(pwmValue, 0, 255, 0, 100));
-  lcd.print(" % ");
+  lcd.print(" %");
 
   lcd.setCursor(0, 3);
   lcd.print("Relais: ");
