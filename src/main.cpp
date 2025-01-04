@@ -94,7 +94,7 @@ void loop() {
   Serial.print(" °C, PWM-Wert: ");
   Serial.print(pwmValue);
   Serial.print(", Relais: ");
-  Serial.println(currentTemperature < targetTemperature - relaySpread ? "EIN" : "AUS");
+  Serial.println(currentTemperature < targetTemperature - relaySpread ? "AUS" : "EIN");
 
   // LCD-Ausgabe
   lcd.setCursor(0, 0);
