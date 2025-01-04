@@ -84,7 +84,7 @@ void loop() {
   int pwmValue = 0;
   if (temperatureDifference > 0) {
     float pwmRatio = constrain((temperatureDifference / temperatureSpread), 0.0, 1.0);
-    pwmValue = (int)(pwmRatio * 255); // Normales PWM-Signal
+    pwmValue = 255 - (int)(pwmRatio * 255); // Invertiertes PWM-Signal
   }
 
   // PWM-Wert an Lüfter ausgeben
