@@ -1,0 +1,87 @@
+#include "DHT.h"
+#include "LiquidCrystal_I2C.h"
+LiquidCrystal_I2C lcd(0x27,20,4);
+#include <CtrlEnc.h>
+
+//====================================== Temperatureinstellungen
+int solltemp;
+#define stufe1 solltemp+1
+#define stufe2 solltemp+2
+#define stufe3 solltemp+3
+#define stufe4 solltemp+4
+#define stufe5 solltemp+5
+//==============================================================
+
+void onTurnleft() {
+    solltemp = solltemp - 1;
+    Serial.println("Basic rotary encoder turn left");
+    Serial.print("Solltemperatur ");
+    Serial.print(solltemp);
+    Serial.println(" C");
+}
+
+void onTurnRight() {
+    solltemp = solltemp + 1;
+    Serial.println("Basic rotary encoder turn right");
+    Serial.print("Solltemperatur ");
+    Serial.print(solltemp);
+    Serial.println(" C");
+}
+
+#define DHTPIN 4
+#define FanPin 5
+#define RelayPin 6
+#define Switch 8
+#define DHTTYPE DHT11
+CtrlEnc encoder(2, 7, onTurnleft, onTurnRight);
+
+float temp;
+String status;
+
+DHT dht(DHTPIN, DHTTYPE);
+
+
+void setup() {
+Serial.begin(9600);
+Serial.println("Reset");
+lcd.init();
+lcd.backlight();
+dht.begin();
+//TCCR1B = TCCR1B & B11111000 | B00000001;
+pinMode(FanPin,OUTPUT);
+pinMode(RelayPin,OUTPUT);
+pinMode(Switch,INPUT);
+solltemp = 24;
+}
+
+
+
+void loop() {
+encoder.process();
+delay(100);
+float temp = dht.readTemperature();
+if (temp <= solltemp) { digitalWrite(RelayPin,LOW); status = "AUS      "; }else
+    { digitalWrite(RelayPin,HIGH);}
+
+if (temp >= stufe5) { digitalWrite(FanPin,LOW); status = "Stufe-MAX"; }else
+if (temp >= stufe4) { analogWrite(FanPin,40); status = "Stufe-4  "; }else
+if (temp >= stufe3) { analogWrite(FanPin,60); status = "Stufe-3  "; }else
+if (temp >= stufe2) { analogWrite(FanPin,90); status = "Stufe-2  "; }else
+if (temp >= stufe1) { analogWrite(FanPin,150); status = "Stufe-1  "; }else
+if (temp >= solltemp) { analogWrite(FanPin,220); status = "Stufe-LOW"; }
+
+lcd.setCursor(0,0);
+lcd.print("L\365ftersteuerung");
+lcd.setCursor(0,1);
+lcd.print("Aktuell:  ");
+lcd.print(temp);
+lcd.print("\337C");
+lcd.setCursor(0,2);
+lcd.print("Solltemp: ");
+lcd.print(solltemp);
+lcd.print("\337C");
+lcd.setCursor(0,3);
+lcd.print("Status:   ");
+lcd.print(status);
+delay(1000);
+}
