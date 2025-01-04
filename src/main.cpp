@@ -1,3 +1,11 @@
+// Dieser Code wurde mit Unterstützung von ChatGPT erstellt.
+// Beschreibung:
+// Der Code steuert einen Lüfter basierend auf der gemessenen Temperatur eines DHT11-Sensors.
+// - Die Lüftergeschwindigkeit wird per PWM angepasst und startet ab einem Minimum von 30%.
+// - Ein Relais wird ein- oder ausgeschaltet, abhängig von der aktuellen Temperatur.
+// - Ein KY-040 Rotary Encoder erlaubt die Anpassung der Solltemperatur. Beim Drücken des Encoders wird die Solltemperatur auf 20°C zurückgesetzt.
+// - Ein LCD-Display zeigt die aktuelle Temperatur, Solltemperatur, PWM-Signal in Prozent und den Relaisstatus an.
+
 #include <DHT.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -77,14 +85,15 @@ void loop() {
 
   // PWM-Signal berechnen (1-100% Bereich)
   int pwmValue = 0;
+  int displayPWM = 0;
   if (temperatureDifference > 0) {
     float pwmRatio = constrain((temperatureDifference / temperatureSpread), 0.0, 1.0);
-    pwmValue = 255 - (int)(pwmRatio * 255); // Invertiertes PWM-Signal
+    pwmValue = 77 + (int)(pwmRatio * (255 - 77)); // PWM-Wert startet bei 30%
 
-    // Mindest-PWM-Schwelle berücksichtigen
-    if (pwmValue > 0 && pwmValue < 77) { // 77 entspricht ca. 30% von 255
-      pwmValue = 77; // Lüfter startet bei 30%
-    }
+    // Berechnung des Displaywerts als Prozent
+    displayPWM = map(pwmValue, 77, 255, 30, 100); // Minimum auf 30%
+  } else {
+    displayPWM = 0; // Zeige 0% an, wenn keine Regelung erfolgt
   }
 
   // PWM-Wert an Lüfter ausgeben
@@ -95,6 +104,7 @@ void loop() {
     digitalWrite(RELAY_PIN, LOW); // Relais einschalten (invertiert)
   } else {
     digitalWrite(RELAY_PIN, HIGH);  // Relais ausschalten (invertiert)
+    displayPWM = 0; // Zeige 0%, wenn Relais aus ist
   }
 
   // Debug-Ausgabe
@@ -102,7 +112,9 @@ void loop() {
   Serial.print(currentTemperature);
   Serial.print(" °C, PWM-Wert: ");
   Serial.print(pwmValue);
-  Serial.print(", Relais: ");
+  Serial.print(" (Anzeige: ");
+  Serial.print(displayPWM);
+  Serial.print("%), Relais: ");
   Serial.println(currentTemperature < targetTemperature - relaySpread ? "AUS" : "EIN");
 
   // LCD-Ausgabe
@@ -118,7 +130,7 @@ void loop() {
 
   lcd.setCursor(0, 2);
   lcd.print("PWM: ");
-  lcd.print(100 - map(pwmValue, 0, 255, 0, 100)); // Invertierte Anzeige
+  lcd.print(displayPWM);
   lcd.print(" % ");
 
   lcd.setCursor(0, 3);
